@@ -1,0 +1,24 @@
+name: Run Scheduler
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # every 5 minutes
+  workflow_dispatch:
+
+jobs:
+  call-scheduler:
+    runs-on: ubuntu-latest
+    env:
+      # Set this repository variable in GitHub → Settings → Variables → Actions
+      # Example: https://your-vercel-domain.vercel.app/api/cron/run-scheduler
+      SCHEDULER_URL: ${{ vars.SCHEDULER_URL }}
+    steps:
+      - name: Call scheduler endpoint
+        run: |
+          if [ -z "$SCHEDULER_URL" ]; then
+            echo "::warning::SCHEDULER_URL repo variable not set; falling back to example domain"
+            SCHEDULER_URL="https://your-vercel-domain.vercel.app/api/cron/run-scheduler"
+          fi
+          echo "Calling: $SCHEDULER_URL"
+          curl -sS -X POST "$SCHEDULER_URL"
+

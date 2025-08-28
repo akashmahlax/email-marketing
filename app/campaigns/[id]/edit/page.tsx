@@ -397,6 +397,29 @@ export default function EditCampaignPage({ params }: { params: { id: string } })
                 )}
               />
 
+              <FormField
+                control={form.control}
+                name="scheduledAt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Schedule (optional)</FormLabel>
+                    <FormControl>
+                      <input
+                        type="datetime-local"
+                        className="w-full rounded-md border px-3 py-2 text-sm"
+                        value={field.value ? new Date(field.value).toISOString().slice(0,16) : ''}
+                        onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value).toISOString() : '')}
+                        disabled={!isEditable}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Choose a future date and time to schedule this campaign.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}

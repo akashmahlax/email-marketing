@@ -47,17 +47,19 @@ export default function DashboardPage() {
 
   const fetchDashboardStats = async () => {
     try {
-      const [campaignsRes, subscribersRes, templatesRes, listsRes] = await Promise.all([
+      const [campaignsRes, subscribersRes, templatesRes, listsRes, emailRes] = await Promise.all([
         fetch('/api/campaigns'),
         fetch('/api/subscribers'),
         fetch('/api/templates'),
-        fetch('/api/subscriber-lists')
+        fetch('/api/subscriber-lists'),
+        fetch('/api/test-email', { method: 'POST' })
       ]);
 
       const campaignsData = await campaignsRes.json();
       const subscribersData = await subscribersRes.json();
       const templatesData = await templatesRes.json();
       const listsData = await listsRes.json();
+      const emailData = emailRes.ok ? await emailRes.json() : { success: false };
 
       // Handle different response formats from APIs
       const campaignsArray = Array.isArray(campaignsData) ? campaignsData : 
@@ -76,6 +78,9 @@ export default function DashboardPage() {
         totalLists: listsArray.length,
         recentCampaigns: campaignsArray.slice(0, 5)
       });
+      // Store provider into state via a ref or separate state if desired
+      // For brevity, we'll log it
+      console.log('Email provider:', emailData);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       // Set default values on error
