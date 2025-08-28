@@ -5,9 +5,7 @@ import { Campaign } from '@/lib/models/campaign';
 import * as campaignService from "@/lib/services/campaign-service";
 
 type RouteContext = {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 };
 
 /**
@@ -23,7 +21,7 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     }
 
     // Get campaign ID from params
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Campaign ID is required" },
@@ -76,7 +74,7 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     }
 
     // Get campaign ID from params
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json(
         { error: "Campaign ID is required" },
