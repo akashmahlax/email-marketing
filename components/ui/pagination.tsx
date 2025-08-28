@@ -116,6 +116,91 @@ function PaginationEllipsis({
   )
 }
 
+// Custom Pagination component that accepts currentPage, totalPages, and onPageChange
+interface CustomPaginationProps {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}
+
+function CustomPagination({ currentPage, totalPages, onPageChange }: CustomPaginationProps) {
+  const getVisiblePages = () => {
+    const delta = 2;
+    const range = [];
+    const rangeWithDots = [];
+
+    for (
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(totalPages - 1, currentPage + delta);
+      i++
+    ) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else {
+      rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+            Previous
+          </Button>
+        </PaginationItem>
+        
+        {getVisiblePages().map((page, index) => (
+          <PaginationItem key={index}>
+            {page === '...' ? (
+              <PaginationEllipsis />
+            ) : (
+              <Button
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => onPageChange(page as number)}
+              >
+                {page}
+              </Button>
+            )}
+          </PaginationItem>
+        ))}
+        
+        <PaginationItem>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRightIcon className="h-4 w-4" />
+          </Button>
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  );
+}
+
 export {
   Pagination,
   PaginationContent,
@@ -124,4 +209,5 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
+  CustomPagination,
 }
