@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,11 +14,10 @@ export default function HomePage() {
 
   useEffect(() => {
     if (status === 'loading') return;
-    
-    if (session) {
-      router.push('/(dashboard)');
+    if (status === 'authenticated') {
+      router.replace('/dashboard');
     }
-  }, [session, status, router]);
+  }, [status, router]);
 
   if (status === 'loading') {
     return (
@@ -31,8 +30,14 @@ export default function HomePage() {
     );
   }
 
-  if (session) {
-    return null; // Will redirect to dashboard
+  if (status === 'authenticated') {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-lg">Redirecting to dashboard...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -115,12 +120,10 @@ export default function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Link href="/api/auth/signin">
-                <Button className="w-full">
-                  Sign In with Google
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
+              <Button className="w-full" onClick={() => signIn('google')}>
+                Sign In with Google
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
             </CardContent>
           </Card>
         </div>
