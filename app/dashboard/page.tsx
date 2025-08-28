@@ -33,9 +33,17 @@ export default function DashboardPage() {
     recentCampaigns: []
   });
 
- 
+  useEffect(() => {
+    if (status === 'loading') return;
+    
+    if (!session) {
+      router.push('/api/auth/signin');
+      return;
+    }
+
     // Fetch dashboard stats
-   
+    fetchDashboardStats();
+  }, [session, status, router]);
 
   const fetchDashboardStats = async () => {
     try {
