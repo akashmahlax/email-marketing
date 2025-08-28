@@ -2,19 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import * as campaignService from "@/lib/services/campaign-service";
 
 type RouteContext = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 /**
  * GET /api/campaigns/[id]/track
  * Track email opens and clicks
  */
-export async function GET(request: NextRequest, { params }: RouteContext) {
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    // Get campaign ID from params
-    const { id } = params;
+  // Get campaign ID from params
+  const params = await context.params;
+  const { id } = params;
     if (!id) {
       return NextResponse.json(
         { error: "Campaign ID is required" },

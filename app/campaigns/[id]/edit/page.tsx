@@ -30,6 +30,7 @@ const formSchema = z.object({
   listIds: z.array(z.string()).min(1, 'At least one subscriber list is required'),
   trackOpens: z.boolean(),
   trackClicks: z.boolean(),
+  scheduledAt: z.string().optional(),
 });
 
 export default function EditCampaignPage({ params }: { params: { id: string } }) {
@@ -399,7 +400,7 @@ export default function EditCampaignPage({ params }: { params: { id: string } })
 
               <FormField
                 control={form.control}
-                name="scheduledAt"
+                name={"scheduledAt" as any}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Schedule (optional)</FormLabel>
@@ -407,7 +408,7 @@ export default function EditCampaignPage({ params }: { params: { id: string } })
                       <input
                         type="datetime-local"
                         className="w-full rounded-md border px-3 py-2 text-sm"
-                        value={field.value ? new Date(field.value).toISOString().slice(0,16) : ''}
+                        value={typeof field.value === 'string' && field.value ? new Date(String(field.value)).toISOString().slice(0,16) : ''}
                         onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value).toISOString() : '')}
                         disabled={!isEditable}
                       />

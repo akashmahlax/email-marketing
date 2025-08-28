@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import * as templateService from "@/lib/services/template-service";
 
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
-  const { params } = context;
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params;
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -25,8 +25,8 @@ export async function GET(request: NextRequest, context: { params: { id: string 
   }
 }
 
-export async function PUT(request: NextRequest, context: { params: { id: string } }) {
-  const { params } = context;
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params;
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -55,7 +55,8 @@ export async function PUT(request: NextRequest, context: { params: { id: string 
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params;
   // Check authentication
   const session = await auth();
   if (!session?.user) {
