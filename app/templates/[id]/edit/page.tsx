@@ -2,15 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Metadata } from "next";
 import TemplateEditor from "@/components/email/template-editor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmailTemplate } from "@/lib/models/template";
-
-export const metadata: Metadata = {
-  title: "Edit Email Template",
-  description: "Edit an existing email template",
-};
 
 export default function EditTemplatePage({ params }: { params: { id: string } }) {
   const router = useRouter();

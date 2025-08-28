@@ -54,20 +54,38 @@ export default function DashboardPage() {
         fetch('/api/subscriber-lists')
       ]);
 
-      const campaigns = await campaignsRes.json();
-      const subscribers = await subscribersRes.json();
-      const templates = await templatesRes.json();
-      const lists = await listsRes.json();
+      const campaignsData = await campaignsRes.json();
+      const subscribersData = await subscribersRes.json();
+      const templatesData = await templatesRes.json();
+      const listsData = await listsRes.json();
+
+      // Handle different response formats from APIs
+      const campaignsArray = Array.isArray(campaignsData) ? campaignsData : 
+                           (campaignsData?.campaigns && Array.isArray(campaignsData.campaigns)) ? campaignsData.campaigns : [];
+      const subscribersArray = Array.isArray(subscribersData) ? subscribersData : 
+                             (subscribersData?.subscribers && Array.isArray(subscribersData.subscribers)) ? subscribersData.subscribers : [];
+      const templatesArray = Array.isArray(templatesData) ? templatesData : 
+                           (templatesData?.templates && Array.isArray(templatesData.templates)) ? templatesData.templates : [];
+      const listsArray = Array.isArray(listsData) ? listsData : 
+                        (listsData?.lists && Array.isArray(listsData.lists)) ? listsData.lists : [];
 
       setStats({
-        totalCampaigns: campaigns.length || 0,
-        totalSubscribers: subscribers.length || 0,
-        totalTemplates: templates.length || 0,
-        totalLists: lists.length || 0,
-        recentCampaigns: campaigns.slice(0, 5) || []
+        totalCampaigns: campaignsArray.length,
+        totalSubscribers: subscribersArray.length,
+        totalTemplates: templatesArray.length,
+        totalLists: listsArray.length,
+        recentCampaigns: campaignsArray.slice(0, 5)
       });
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
+      // Set default values on error
+      setStats({
+        totalCampaigns: 0,
+        totalSubscribers: 0,
+        totalTemplates: 0,
+        totalLists: 0,
+        recentCampaigns: []
+      });
     }
   };
 

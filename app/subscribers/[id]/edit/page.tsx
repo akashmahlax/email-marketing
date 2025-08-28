@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Metadata } from "next";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -12,11 +11,6 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Subscriber } from "@/lib/models/subscriber";
-
-export const metadata: Metadata = {
-  title: "Edit Subscriber",
-  description: "Edit an existing email subscriber",
-};
 
 const subscriberSchema = z.object({
   email: z.string().email("Please enter a valid email address"),

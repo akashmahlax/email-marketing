@@ -231,7 +231,7 @@ export default function CreateCampaignPage() {
                         </FormControl>
                         <SelectContent>
                           {templates.length === 0 ? (
-                            <SelectItem value="" disabled>
+                            <SelectItem value="no-templates" disabled>
                               No templates available
                             </SelectItem>
                           ) : (

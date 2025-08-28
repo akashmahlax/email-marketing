@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import * as subscriberService from "@/lib/services/subscriber-service";
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -10,7 +10,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 
   try {
-    const subscriber = await subscriberService.getSubscriberById(params.id);
+    const { id } = await params;
+    const subscriber = await subscriberService.getSubscriberById(id);
     
     if (!subscriber) {
       return NextResponse.json({ error: "Subscriber not found" }, { status: 404 });
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -30,8 +31,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 
   try {
+    const { id } = await params;
     const body = await request.json();
-    const updatedSubscriber = await subscriberService.updateSubscriber(params.id, body);
+    const updatedSubscriber = await subscriberService.updateSubscriber(id, body);
     return NextResponse.json(updatedSubscriber);
   } catch (error: any) {
     if (error.message.includes("not found")) {
@@ -44,7 +46,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -52,7 +54,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
   try {
-    await subscriberService.deleteSubscriber(params.id);
+    const { id } = await params;
+    await subscriberService.deleteSubscriber(id);
     return new NextResponse(null, { status: 204 });
   } catch (error: any) {
     if (error.message.includes("not found")) {

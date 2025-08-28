@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import * as subscriberService from "@/lib/services/subscriber-service";
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -10,12 +10,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 
   try {
+    const { id } = await params;
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     
-    const result = await subscriberService.getSubscribersByList(params.id, page, limit);
+    const result = await subscriberService.getSubscribersByList(id, page, limit);
     return NextResponse.json(result);
   } catch (error: any) {
     if (error.message.includes("not found")) {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   try {
+    const { id } = await params;
     const body = await request.json();
     
     // Validate required fields
@@ -40,7 +42,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: "Subscriber ID is required" }, { status: 400 });
     }
     
-    const result = await subscriberService.addSubscriberToList(params.id, body.subscriberId);
+    // Note: service expects (subscriberId, listId)
+    const result = await subscriberService.addSubscriberToList(body.subscriberId, id);
     return NextResponse.json(result, { status: 200 });
   } catch (error: any) {
     if (error.message.includes("not found")) {
@@ -50,7 +53,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   // Check authentication
   const session = await auth();
   if (!session?.user) {
@@ -58,6 +61,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
   try {
+    const { id } = await params;
     const body = await request.json();
     
     // Validate required fields
@@ -65,7 +69,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Subscriber ID is required" }, { status: 400 });
     }
     
-    const result = await subscriberService.removeSubscriberFromList(params.id, body.subscriberId);
+    const result = await subscriberService.removeSubscriberFromList(id, body.subscriberId);
     return NextResponse.json(result, { status: 200 });
   } catch (error: any) {
     if (error.message.includes("not found")) {

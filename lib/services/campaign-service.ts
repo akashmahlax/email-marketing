@@ -3,6 +3,7 @@ import client from "../db";
 import { Campaign, CampaignRecipient } from "../models/campaign";
 import * as subscriberService from "./subscriber-service";
 import * as templateService from "./template-service";
+import * as emailService from "./nodemailer-service";
 
 const COLLECTION_NAME = "campaigns";
 const RECIPIENT_COLLECTION_NAME = "campaign_recipients";
@@ -295,10 +296,51 @@ export async function sendCampaign(id: string) {
     throw new Error("Campaign not found");
   }
   
-  // In a real implementation, this would trigger the email sending process
-  // For now, we'll simulate it by creating recipient records
+  // Get the template and subscribers
+  const template = await templateService.getTemplateById(currentCampaign.templateId.toString());
+  if (!template) {
+    throw new Error("Template not found");
+  }
+
+  // Get all subscribers from the campaign's lists
+  const allSubscribers: any[] = [];
+  for (const listId of currentCampaign.listIds) {
+    const { subscribers } = await subscriberService.getSubscribersByList(listId.toString(), 1, 1000);
+    for (const subscriber of subscribers) {
+      if (subscriber._id && subscriber.status === "active") {
+        allSubscribers.push(subscriber);
+      }
+    }
+  }
+
+  // Create recipient records
   await createCampaignRecipients(id);
+
+  // Send emails
+  const fromEmail = currentCampaign.fromEmail;
+  const replyTo = currentCampaign.replyTo;
   
+  const emailResults = await emailService.sendCampaignEmails(
+    id,
+    template,
+    allSubscribers,
+    fromEmail,
+    replyTo
+  );
+
+  // Update campaign with email results
+  await db.collection<Campaign>(COLLECTION_NAME).updateOne(
+    { _id: new ObjectId(id) },
+    { 
+      $set: {
+        status: "sent",
+        "analytics.sent": emailResults.success,
+        "analytics.failed": emailResults.failed,
+        updatedAt: now
+      } 
+    }
+  );
+
   return getCampaignById(id);
 }
 
